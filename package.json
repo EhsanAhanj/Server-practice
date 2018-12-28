@@ -1,0 +1,19 @@
+{
+  "name": "server-practice",
+  "version": "1.0.0",
+  "description": "Back end for practice",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EhsanAhanj/Server-practice.git"
+  },
+  "author": "EhsanAhanj",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EhsanAhanj/Server-practice/issues"
+  },
+  "homepage": "https://github.com/EhsanAhanj/Server-practice#readme"
+}
