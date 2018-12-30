@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/EhsanAhanj/Server-practice/issues"
   },
-  "homepage": "https://github.com/EhsanAhanj/Server-practice#readme"
+  "homepage": "https://github.com/EhsanAhanj/Server-practice#readme",
+  "dependencies": {
+    "config": "^3.0.1",
+    "express": "^4.16.4",
+    "helmet": "^3.15.0",
+    "mongoose": "^5.4.1"
+  }
 }
