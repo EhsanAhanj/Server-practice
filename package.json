@@ -17,9 +17,13 @@
   },
   "homepage": "https://github.com/EhsanAhanj/Server-practice#readme",
   "dependencies": {
+    "bcrypt": "^3.0.3",
     "config": "^3.0.1",
     "express": "^4.16.4",
     "helmet": "^3.15.0",
+    "joi": "^14.3.1",
+    "jsonwebtoken": "^8.4.0",
+    "lodash": "^4.17.11",
     "mongoose": "^5.4.1"
   }
 }

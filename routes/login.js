@@ -1,28 +1,28 @@
 const express = require("express");
 const router = express.Router();
-const { Member } = require("../model/Member");
+const { Member, validate, isDublicted } = require("../model/Member");
 
 router.post("/", async (req, res) => {
-  const { clientId: id, name, phoneNumber: pn, ostan } = req.body;
-  const same = await Member.find()
-    .or([{ clientId: id }, { phoneNumber: pn }])
-    .countDocuments();
-
-  console.log(same);
-  if (same === 0) {
-    let member = new Member({
-      name,
-      clientId: id,
-      phoneNumber: pn,
-      ostan
-    });
-
-    member = await member.save();
-    res.status(200).send(member.clientId);
-
-    //console.log(result);
+  const { error } = validate(req.body);
+  if (error) {
+    return res.status(400).send(error.details[0].message);
   } else {
-    res.send("bad requst repetation!!!!!!!!!!");
+    const { clientId, name, phoneNumber, ostan } = req.body;
+    const hasDublicated = isDublicted(req.body);
+
+    if (!hasDublicated) {
+      let member = new Member({
+        name,
+        clientId,
+        phoneNumber,
+        ostan
+      });
+
+      member = await member.save();
+      res.status(200).send(member.clientId);
+    } else {
+      res.send("this username or phonenumber rejistred beror.");
+    }
   }
 });
 

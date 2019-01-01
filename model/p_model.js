@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Member } = require("../model/Member");
+const Joi = require("joi");
 
 const Producte = mongoose.model(
   "Producte",
@@ -17,5 +18,22 @@ const Producte = mongoose.model(
     tags: [String]
   })
 );
+function validateProducte(producte) {
+  const schema = {
+    desc: Joi.string()
+      .min(5)
+      .max(50)
+      .required(),
+    tags: Joi.array()
+      .items(Joi.string().required())
+      .required(),
+    category: Joi.array()
+      .items(Joi.string().required())
+      .required(),
+    clientId: Joi.string()
+  };
 
+  return Joi.validate(producte, schema);
+}
+exports.validate = validateProducte;
 exports.Producte = Producte;

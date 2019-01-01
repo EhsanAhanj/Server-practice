@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
+const Joi = require("joi");
 const { Producte } = require("./p_model");
 
 const Member = mongoose.model(
   "Member",
   new mongoose.Schema({
-    name: { type: String, required: true },
+    name: { type: String, required: true, minlength: 5, maxlength: 50 },
     clientId: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     password: String,
@@ -39,4 +40,32 @@ const Member = mongoose.model(
   })
 );
 
+function validateNewMember(newMember) {
+  const schema = {
+    clientId: Joi.string().required(),
+    name: Joi.string()
+      .min(4)
+      .max(50)
+      .required(),
+    phoneNumber: Joi.string()
+      .min(7)
+      .max(10)
+      .required(),
+    ostan: Joi.string().required()
+  };
+  return Joi.validate(newMember, schema);
+}
+async function isDublicted(newMember) {
+  try {
+    await Member.find()
+      .or([{ clientId }, { phoneNumber }])
+      .countDocuments();
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+exports.isDublicted = isDublicted;
 exports.Member = Member;
+exports.validate = validateNewMember;
