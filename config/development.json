@@ -1,3 +1,4 @@
 {
-  "name": "bouj.app-development"
+  "name": "bouj.app-development",
+  "db": "mongodb://localhost/bouj"
 }

@@ -1,48 +1,42 @@
 const mongoose = require("mongoose");
+const { Producte } = require("./p_model");
 
-const memberSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  clientId: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
-  password: String,
-  ostan: { type: String, required: true },
-  city: String,
-  locatinon: {
-    mapAddress: {
-      lattatud: Number,
-      lantitiud: Number
-    }
-  },
-  followers: [{ Types: mongoose.Schema.Types.ObjectId }],
-  followings: [mongoose.Schema.Types.ObjectId],
-  avatarImage: {
-    avatarLarge: String,
-    avatarSmall: String
-  },
-  memberRole: String,
-  tripsPassed: [String],
-  advanctureMaded: [String],
-  post: [String],
-  warnings: [String],
-  ratingRate: Number,
-  lastLogin: Date,
-  publishacunt: Boolean,
-  linksOut: [String],
-  canRateFor: [String]
-});
+const Member = mongoose.model(
+  "Member",
+  new mongoose.Schema({
+    name: { type: String, required: true },
+    clientId: { type: String, required: true },
+    phoneNumber: { type: String, required: true },
+    password: String,
+    publishacunt: { type: Boolean, default: true },
+    ostan: { type: String, required: true },
+    city: String,
+    location: {
+      type: {
+        type: String, // Don't do `{ location: { type: String } }`
+        enum: ["Point"] // 'location.type' must be 'Point'
+      },
+      coordinates: {
+        type: [Number]
+      }
+    },
 
-const Member = mongoose.model("Member", memberSchema);
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Member" }],
+    followings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Member" }],
+    avatarImage: {
+      avatarSmall: { type: String, default: "https://picsum.photos/200" },
+      avatarLarge: String
+    },
+    memberRole: String,
+    tripsPassed: [],
+    advanctureMaded: [String],
+    producte_posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Producte" }],
+    warnings: [String],
+    ratingRate: Number,
+    lastLogin: Date,
+    linksOut: [String],
+    canRateFor: [String]
+  })
+);
 
-async function createNewMember(clientId, name, email, ostan) {
-  const member = new Member({
-    name,
-    clientId,
-    phoneNumber,
-    ostan
-  });
-
-  const result = await member.save();
-  if (result) return member;
-}
-module.exports.Member = Member;
-module.exports.createNewMember = createNewMember;
+exports.Member = Member;
