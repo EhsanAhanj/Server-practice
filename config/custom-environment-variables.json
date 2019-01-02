@@ -1,3 +1,4 @@
 {
-  "password": "app_password"
+  "password": "app_password",
+  "jwtPrivateKey": "jwtPrivateKey"
 }

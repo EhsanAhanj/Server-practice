@@ -1,5 +1,6 @@
 const helemt = require("helmet");
 const home = require("./routes/home");
+const signinRouter = require("./routes/signin");
 const loginRouter = require("./routes/login");
 const postRouter = require("./routes/p");
 const config = require("config");
@@ -7,8 +8,14 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 
+if (!config.get("jwtPrivateKey")) {
+  console.error("FATAL ERROR NOT SET ENVARIMENT VAIEBALE");
+  process.exit(1);
+}
+
 app.use(express.json());
 app.use(helemt());
+app.use("/signin", signinRouter);
 app.use("/login", loginRouter);
 app.use("/p", postRouter);
 app.use("/", home);

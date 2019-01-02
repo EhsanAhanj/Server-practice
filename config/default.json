@@ -1,4 +1,5 @@
 {
   "name": "bouj.app ",
-  "db": "mongodb://localhost/bouj"
+  "db": "mongodb://localhost/bouj",
+  "jwtPrivateKey": ""
 }
