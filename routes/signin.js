@@ -11,14 +11,15 @@ router.post("/", async (req, res) => {
   } else {
     let itDublicated = await isDublicted(req.body);
 
-    const { clientId, name, phoneNumber, ostan, password } = req.body;
+    const { userName, name, phoneNumber, ostan, password, location } = req.body;
     if (!itDublicated) {
       let member = new Member({
         name,
-        clientId,
+        userName,
         phoneNumber,
         ostan,
-        password
+        password,
+        location
       });
       const salt = await bcrypt.genSalt(10);
       member.password = await bcrypt.hash(password, salt);
@@ -27,7 +28,7 @@ router.post("/", async (req, res) => {
       res
         .header("x-bouj-token", token)
         .status(200)
-        .send(_.pick(member, ["clientId", "name", "_id"]));
+        .send(_.pick(member, ["userName", "name", "_id", "location"]));
     } else {
       res.status(400).send("this username or phonenumber rejistred beror.");
     }

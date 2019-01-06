@@ -1,39 +1,54 @@
 const mongoose = require("mongoose");
-const { Member } = require("../model/Member");
+const { embedUserName } = require("../model/Member");
 const Joi = require("joi");
+const pointSchema = require("../model/pointSchema");
+const { CommentBox } = require("../model/CommentBox");
 
 const Producte = mongoose.model(
   "Producte",
   new mongoose.Schema({
-    owner_clientId: { type: String, required: true },
-    owner_id: {
+    owner: { type: Object, required: true },
+    commentBoxId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Member",
+      ref: "CommentBox",
+      auto: true,
       required: true
     },
+    likes: { type: Number },
+    likedBy: { type: Array, items: Object },
+
+    location: { type: pointSchema },
     date: { type: Date, default: Date.now },
-    desc: { type: String, required: true },
-    images: { type: String, default: "https://picsum.photos/200/300" },
-    category: [String],
-    tags: [String]
+    caption: { type: String, required: true },
+    images: {
+      type: Array,
+      items: String,
+      default: [
+        "https://picsum.photos/200/300",
+        "https://picsum.photos/200/300"
+      ]
+    },
+    category: { type: Array, items: String, required: true },
+    tags: { type: Array, items: String, required: true }
   })
 );
 function validateProducte(producte) {
   const schema = {
-    desc: Joi.string()
+    caption: Joi.string()
       .min(5)
-      .max(50)
+      .max(500)
       .required(),
     tags: Joi.array()
-      .items(Joi.string().required())
+      .items(Joi.string())
       .required(),
     category: Joi.array()
-      .items(Joi.string().required())
+      .items(Joi.string())
       .required(),
-    clientId: Joi.string()
+    userId: Joi.objectId().required()
   };
 
   return Joi.validate(producte, schema);
 }
+
 exports.validate = validateProducte;
 exports.Producte = Producte;

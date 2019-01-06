@@ -10,13 +10,13 @@ router.post("/", async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   else {
-    const { phoneNumberOrClientId, password } = req.body;
+    const { phoneNumberOrUserName, password } = req.body;
     let member = "";
     try {
       member = await Member.findOne({
         $or: [
-          { phoneNumber: phoneNumberOrClientId },
-          { clientId: phoneNumberOrClientId }
+          { phoneNumber: phoneNumberOrUserName },
+          { userName: phoneNumberOrUserName }
         ]
       });
     } catch (err) {
@@ -28,6 +28,7 @@ router.post("/", async (req, res) => {
       const validPassword = await bcrypt.compare(password, member.password);
       if (!validPassword) return res.status(400).send("password eshtebahe");
       else {
+        // send sms and compare
         const token = member.generateAuthToken();
         res
           .header("x-bouj-token", token)
