@@ -45,3 +45,15 @@ const comments = await Comment.find()
   .sort({ body: 1 });
 comments[0].on.name; // "The Count of Monte Cristo"
 comments[1].on.title; // "Top 10 French Novels"
+const result = await CommentBox.findOneAndUpdate(
+  {
+    _id: product_post.commentBoxId,
+    "comments._id": ObjectID(yechi)
+  },
+  { $inc: { "comments.$.likes": 1 } },
+  {
+    //arrayFilters: [{ ele: { _id: yechi } }],
+    upsert: true,
+    new: true
+  }
+);

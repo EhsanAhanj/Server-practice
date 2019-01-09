@@ -4,10 +4,13 @@ const replySchema = require("./replySchema");
 const commentSchema = new mongoose.Schema({
   comment_owner: { type: Object, required: true },
   text: { type: String, required: true },
-  liks: { type: Number },
+  likes: { type: Number, default: 0 },
+  date: { type: Date, default: Date.now },
+  likedBy: { type: Array, items: Object },
   replyCount: { type: Number },
-  replys: { type: replySchema },
+  replys: { type: replySchema, auto: true },
   reports: { type: Number }
 });
+const Comment = mongoose.model("Comment", commentSchema);
 
-exports.commentSchema = commentSchema;
+exports.Comment = Comment;

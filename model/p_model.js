@@ -4,8 +4,8 @@ const Joi = require("joi");
 const pointSchema = require("../model/pointSchema");
 const { CommentBox } = require("../model/CommentBox");
 
-const Producte = mongoose.model(
-  "Producte",
+const Product = mongoose.model(
+  "Product",
   new mongoose.Schema({
     owner: { type: Object, required: true },
     commentBoxId: {
@@ -14,8 +14,13 @@ const Producte = mongoose.model(
       auto: true,
       required: true
     },
-    likes: { type: Number },
-    likedBy: { type: Array, items: Object },
+    likes: { type: Number, default: 0 },
+    likedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Likers",
+      auto: true,
+      required: true
+    },
 
     location: { type: pointSchema },
     date: { type: Date, default: Date.now },
@@ -32,7 +37,7 @@ const Producte = mongoose.model(
     tags: { type: Array, items: String, required: true }
   })
 );
-function validateProducte(producte) {
+function validateProduct(product) {
   const schema = {
     caption: Joi.string()
       .min(5)
@@ -47,8 +52,8 @@ function validateProducte(producte) {
     userId: Joi.objectId().required()
   };
 
-  return Joi.validate(producte, schema);
+  return Joi.validate(product, schema);
 }
 
-exports.validate = validateProducte;
-exports.Producte = Producte;
+exports.validate = validateProduct;
+exports.Product = Product;

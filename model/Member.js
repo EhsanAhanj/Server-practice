@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-const { Producte } = require("./p_model");
+const { Product } = require("./p_model");
 const { pointSchema, ValidatePoint } = require("./pointSchema");
 
 const memberSchema = new mongoose.Schema({
@@ -24,7 +24,7 @@ const memberSchema = new mongoose.Schema({
   memberRole: String,
   tripsPassed: [],
   advanctureMaded: [String],
-  producte_posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Producte" }],
+  product_posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   warnings: [String],
   ratingRate: Number,
   lastLogin: Date,
