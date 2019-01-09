@@ -8,7 +8,7 @@ const commentSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   likedBy: { type: Array, items: Object },
   replyCount: { type: Number },
-  replys: { type: replySchema, auto: true },
+  replys: { type: Array, items: replySchema },
   reports: { type: Number }
 });
 const Comment = mongoose.model("Comment", commentSchema);

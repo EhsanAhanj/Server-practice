@@ -57,3 +57,65 @@ const result = await CommentBox.findOneAndUpdate(
     new: true
   }
 );
+// } else if (
+//   req.body.commentWork._id &&
+//   req.body.commentWork.replyWork._id &&
+//   req.body.commentWork.replyWork.like
+// ) {
+//   if (
+//     !ObjectID.isValid(req.body.commentWork._id) ||
+//     !ObjectID.isValid(req.body.commentWork.replyWork._id)
+//   )
+//     return res.status(400).send(`idha comment moshkel dare `);
+
+//   const commentFounded = commentBoxComponent.comments.filter(o => {
+//     if (o._id == req.body.commentWork._id) return o;
+//   });
+//   if (commentFounded.length == 0)
+//     return res.send("comment nist ya pak shode");
+//   const replyFound = commentFounded[0].replys.filter(o => {
+//     if (o._id == req.body.commentWork.replyWork._id) return o;
+//   });
+//   if (replyFound.length == 0) return res.status(400).send("Reply pak shode");
+
+//   const isLiked = replyFound[0].likedBy.filter(o => {
+//     if (o._id == embededUser._id) return o;
+//   });
+
+//   if (isLiked.length == 0) {
+//     const found1 = await CommentBox.findByIdAndUpdate(
+//       {
+//         _id: product_post.commentBoxId,
+//         "comments._id": ObjectID(req.body.commentWork._id),
+//         "comments.replys._id": ObjectID(req.body.commentWork.replyWork._id)
+//       },
+//       {
+//         $inc: { "comments.$[].replys.0.likes": 1 }
+//         //  $push: { "comments.$[].replys.$.likedBy": embededUser }
+//       },
+//       {
+//         upsert: true,
+//         new: true
+//       }
+//     );
+//     console.log("repoooooooooly", found1);
+
+//     res.status(200).send("Reply LIKED");
+//   } else {
+//     await CommentBox.findOneAndUpdate(
+//       {
+//         _id: product_post.commentBoxId,
+//         "comments._id": ObjectID(req.body.commentWork._id),
+//         "comments.replys._id": ObjectID(req.body.commentWork.replyWork._id)
+//       },
+//       {
+//         $inc: { "comments.$[].replys.$.likes": -1 },
+//         $pull: { "comments.$[].replys.$.likedBy": embededUser }
+//       },
+//       {
+//         upsert: true,
+//         new: true
+//       }
+//     );
+//     res.status(200).send("Reply UNLIKED");
+//   }

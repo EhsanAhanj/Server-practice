@@ -39,23 +39,28 @@ router.put("/:_id", auth, async (req, res) => {
     return res.status(400).send(`id product moshkel dare `);
 
   //-----------halate 1 -----------
+
   if (!product_post) return res.send(`poost injori ba in id nadarim`);
+
   // ---------------------------LOAD LIKERS COMPONENT-------------------------
+
   let likers = await Likers.findById({ _id: product_post.likedBy });
+
   // ---------------------------LOAD COMMENT BOX ATTACHED --------------------
+
   let commentBoxComponent = await CommentBox.findById({
     _id: product_post.commentBoxId
   }).select("comments");
-  // console.log("cooooooooooooooment box", commentBoxComponent);
+
   //-----------------------LIKE PRODUCT BY FAWN--------------------------------
+
   if (req.body.like) {
-    // console.log("likers componennt", likers, "khaliyeeeeeeeeeeeee?/");
     let found = likers.likedBy.filter(o => {
       if (o._id === embededUser._id) return o;
     });
-    //console.log("found", found);
 
     //-------------halate 2 unlike---
+
     if (found.length >= 1) {
       likers.likedBy.pull(embededUser);
       product_post.likes--;
@@ -75,6 +80,7 @@ router.put("/:_id", auth, async (req, res) => {
       return res.status(200).send(`post liked`);
     }
   }
+
   //--------------------------------comment on post ------------------------------
   else if (req.body.comment) {
     const comment = new Comment({
@@ -90,7 +96,7 @@ router.put("/:_id", auth, async (req, res) => {
     );
 
     return res.status(200).send(`DONE -> Comment send.`);
-    //console.log("comentbox", product_post.commentBoxId);
+
     //---------------------LIKE COMMENT------------------------------------------------
   } else if (req.body.commentWork._id && req.body.commentWork.like) {
     if (!ObjectID.isValid(req.body.commentWork._id))
@@ -99,7 +105,6 @@ router.put("/:_id", auth, async (req, res) => {
     const commentFounded = commentBoxComponent.comments.filter(o => {
       if (o._id == req.body.commentWork._id) return o;
     });
-    console.log("req age bashe", commentFounded);
     if (commentFounded.length == 0)
       return res.send("comment nist ya pak shode");
 
@@ -107,7 +112,7 @@ router.put("/:_id", auth, async (req, res) => {
       if (o._id == embededUser._id) return o;
     });
     if (isLiked.length == 0) {
-      await CommentBox.findOneAndUpdate(
+      await CommentBox.updateOne(
         {
           _id: product_post.commentBoxId,
           "comments._id": ObjectID(req.body.commentWork._id)
@@ -123,7 +128,7 @@ router.put("/:_id", auth, async (req, res) => {
       );
       res.status(200).send(`COOOMENT LIKED `);
     } else {
-      await CommentBox.findOneAndUpdate(
+      await CommentBox.updateOne(
         {
           _id: product_post.commentBoxId,
           "comments._id": ObjectID(req.body.commentWork._id)
@@ -139,44 +144,123 @@ router.put("/:_id", auth, async (req, res) => {
       );
       res.status(200).send(`COOOMENT UNLIKED `);
     }
-
-    res.send(req.body.commentWork);
   }
   // -------------------------- REPLAY COMMMENT----------------------------
   else if (req.body.commentWork._id && req.body.commentWork.replyComment) {
     if (!ObjectID.isValid(req.body.commentWork._id))
       return res.status(400).send(`id comment moshkel dare `);
-    let reply = new Reply();
-    await CommentBox.findOneAndUpdate(
+
+    let reply = new Reply({
+      reply_owner: embededUser,
+      text: req.body.commentWork.replyComment,
+      replyOf: req.body.commentWork._id
+    });
+    await CommentBox.updateOne(
       {
         _id: product_post.commentBoxId,
         "comments._id": ObjectID(req.body.commentWork._id)
       },
       {
-        $inc: { "comments.$.likes": -1 },
-        $pull: { "comments.$.likedBy": embededUser }
+        $inc: { "comments.$.replyCount": 1 },
+        $push: { "comments.$.replys": reply }
       },
       {
         upsert: true,
         new: true
       }
     );
+
+    res.status(200).send("Reply ersal shod");
+    //---------------------- LIKE A REPLY-----------------------------------------
+  } else if (
+    req.body.commentWork._id &&
+    req.body.commentWork.replyWork._id &&
+    req.body.commentWork.replyWork.like
+  ) {
+    if (
+      !ObjectID.isValid(req.body.commentWork._id) ||
+      !ObjectID.isValid(req.body.commentWork.replyWork._id)
+    )
+      return res.status(400).send(`idha comment moshkel dare `);
+
+    const commentFounded = commentBoxComponent.comments.filter(o => {
+      if (o._id == req.body.commentWork._id) return o;
+    });
+    if (commentFounded.length == 0)
+      return res.send("comment nist ya pak shode");
+    const replyFound = commentFounded[0].replys.filter(o => {
+      if (o._id == req.body.commentWork.replyWork._id) return o;
+    });
+    console.log("replyFoundsssssssssssssssssss", replyFound, "enddddddddddd");
+    if (replyFound.length == 0) return res.status(400).send("Reply pak shode");
+
+    const isLiked = replyFound[0].likedBy.filter(o => {
+      if (o._id == embededUser._id) return o;
+    });
+    // console.log("replyFound", isLiked, "enddddddddddd");
+
+    if (isLiked.length == 0) {
+      const found1 = await CommentBox.findOneAndUpdate(
+        {
+          _id: product_post.commentBoxId,
+          "comments._id": ObjectID(req.body.commentWork._id),
+          "comments.replys._id": ObjectID(req.body.commentWork.replyWork._id)
+        },
+        {
+          $inc: { "comments.$[i].replys.$[j].likes": 1 },
+          $push: { "comments.$[i].replys.$[j].likedBy": embededUser }
+        },
+        {
+          arrayFilters: [
+            { "i._id": ObjectID(req.body.commentWork._id) },
+            { "j._id": ObjectID(req.body.commentWork.replyWork._id) }
+          ],
+          upsert: true,
+          new: true
+        }
+      );
+      // console.log("repoooooooooly", found1);
+
+      res.status(200).send("Reply LIKED");
+    } else {
+      await CommentBox.findOneAndUpdate(
+        {
+          _id: product_post.commentBoxId,
+          "comments._id": ObjectID(req.body.commentWork._id),
+          "comments.replys._id": ObjectID(req.body.commentWork.replyWork._id)
+        },
+        {
+          $inc: { "comments.$[i].replys.$[j].likes": -1 },
+          $pull: { "comments.$[i].replys.$[j].likedBy": embededUser }
+        },
+        {
+          arrayFilters: [
+            { "i._id": ObjectID(req.body.commentWork._id) },
+            { "j._id": ObjectID(req.body.commentWork.replyWork._id) }
+          ],
+          upsert: true,
+          new: true
+        }
+      );
+      res.status(200).send("Reply UNLIKED");
+    }
   } else {
     res.send(`mikhay chi koni`);
   }
 });
 
 //------------------ CREAATE PRODUCE POST -----------------------------------------
+
 router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
-  //console.log("in errrrrrrrrrrrrr", error);
-
+  const userId = req.user._id;
   if (error) {
     res.status(400).send(error.details[0].message);
     return;
   } else {
-    const { userId, caption, category, tags } = req.body;
+    const { caption, category, tags } = req.body;
     const member = await Member.findById({ _id: userId });
+    console.log(member);
 
     let product_post = new Product({
       owner: req.user,

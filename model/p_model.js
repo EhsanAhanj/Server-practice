@@ -48,8 +48,7 @@ function validateProduct(product) {
       .required(),
     category: Joi.array()
       .items(Joi.string())
-      .required(),
-    userId: Joi.objectId().required()
+      .required()
   };
 
   return Joi.validate(product, schema);
