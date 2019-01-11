@@ -26,7 +26,8 @@
     "joi-objectid": "^2.0.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
-    "mongoose": "^5.4.1"
+    "mongoose": "^5.4.1",
+    "node": "^11.6.0"
   },
   "devDependencies": {
     "jshint": "^2.9.7"

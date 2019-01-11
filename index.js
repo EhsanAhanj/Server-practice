@@ -3,8 +3,9 @@ Joi.objectId = require("joi-objectid")(Joi);
 const helemt = require("helmet");
 const home = require("./routes/home");
 const signinRouter = require("./routes/signin");
-const loginRouter = require("./routes/login");
+const loginRouter = require("./routes/b-login");
 const postRouter = require("./routes/p");
+const adventureRouter = require("./routes/adventure");
 const config = require("config");
 const express = require("express");
 const app = express();
@@ -20,15 +21,19 @@ app.use(helemt());
 app.use("/signin", signinRouter);
 app.use("/login", loginRouter);
 app.use("/p", postRouter);
+app.use("/adventure", adventureRouter);
 app.use("/", home);
 
+const options = {
+  useNewUrlParser: true
+};
 mongoose
   .connect(
-    config.db,
-    { useNewUrlParser: true }
+    "mongodb://localhost/bouj",
+    options
   )
   .then(() => console.log("conected to mongodb"))
-  .catch(err => console.err("error", err));
+  .catch(err => console.err("error1111111111111111111111111111", err));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -20,36 +20,36 @@ Fawn.init(mongoose);
 //----------------------GET ALL PRODUCT POSTS -------------------------
 router.get("/", async (req, res) => {
   // add filters with validate them
-  const product_posts = await Product.find().sort({ _id: -1 });
-  res.status(200).send(product_posts);
+  const prodPosts = await Product.find().sort({ _id: -1 });
+  res.status(200).send(prodPosts);
 });
 //------------------------GET ONE PRODUCT POST BY ID-------------------------
 router.get("/:_id", async (req, res) => {
   if (!ObjectID.isValid(req.params._id))
     return res.status(400).send(`id moshkel dare `);
-  const product_post = await Product.findById({ _id: req.params._id });
-  if (!product_post) return res.status(404).send(`ba in id post nadarim`);
-  return res.status(200).send(`innnnnno mikhay ${product_post}`);
+  const prodPost = await Product.findById({ _id: req.params._id });
+  if (!prodPost) return res.status(404).send(`ba in id post nadarim`);
+  return res.status(200).send(`innnnnno mikhay ${prodPost}`);
 });
 // --------------------MUTATE UNDER THE POST---------------------------------
 router.put("/:_id", auth, async (req, res) => {
-  const product_post = await Product.findById({ _id: req.params._id });
+  const prodPost = await Product.findById({ _id: req.params._id });
   const embededUser = req.user;
   if (!ObjectID.isValid(req.params._id))
     return res.status(400).send(`id product moshkel dare `);
 
   //-----------halate 1 -----------
 
-  if (!product_post) return res.send(`poost injori ba in id nadarim`);
+  if (!prodPost) return res.send(`poost injori ba in id nadarim`);
 
   // ---------------------------LOAD LIKERS COMPONENT-------------------------
 
-  let likers = await Likers.findById({ _id: product_post.likedBy });
+  let likers = await Likers.findById({ _id: prodPost.likedBy });
 
   // ---------------------------LOAD COMMENT BOX ATTACHED --------------------
 
   let commentBoxComponent = await CommentBox.findById({
-    _id: product_post.commentBoxId
+    _id: prodPost.commentBoxId
   }).select("comments");
 
   //-----------------------LIKE PRODUCT BY FAWN--------------------------------
@@ -63,20 +63,20 @@ router.put("/:_id", auth, async (req, res) => {
 
     if (found.length >= 1) {
       likers.likedBy.pull(embededUser);
-      product_post.likes--;
+      prodPost.likes--;
       likers.likes--;
       await likers.save();
-      await product_post.save();
+      await prodPost.save();
       return res.send(`ghablan like kardi hala unlike`);
     }
 
     //-----------halate 3 like-------
     else {
       likers.likedBy.push(embededUser);
-      product_post.likes++;
+      prodPost.likes++;
       likers.likes++;
       await likers.save();
-      await product_post.save();
+      await prodPost.save();
       return res.status(200).send(`post liked`);
     }
   }
@@ -90,7 +90,7 @@ router.put("/:_id", auth, async (req, res) => {
 
     await CommentBox.updateOne(
       {
-        _id: product_post.commentBoxId
+        _id: prodPost.commentBoxId
       },
       { $inc: { commentCount: 1 }, $push: { comments: comment } }
     );
@@ -114,7 +114,7 @@ router.put("/:_id", auth, async (req, res) => {
     if (isLiked.length == 0) {
       await CommentBox.updateOne(
         {
-          _id: product_post.commentBoxId,
+          _id: prodPost.commentBoxId,
           "comments._id": ObjectID(req.body.commentWork._id)
         },
         {
@@ -130,7 +130,7 @@ router.put("/:_id", auth, async (req, res) => {
     } else {
       await CommentBox.updateOne(
         {
-          _id: product_post.commentBoxId,
+          _id: prodPost.commentBoxId,
           "comments._id": ObjectID(req.body.commentWork._id)
         },
         {
@@ -157,7 +157,7 @@ router.put("/:_id", auth, async (req, res) => {
     });
     await CommentBox.updateOne(
       {
-        _id: product_post.commentBoxId,
+        _id: prodPost.commentBoxId,
         "comments._id": ObjectID(req.body.commentWork._id)
       },
       {
@@ -202,7 +202,7 @@ router.put("/:_id", auth, async (req, res) => {
     if (isLiked.length == 0) {
       const found1 = await CommentBox.findOneAndUpdate(
         {
-          _id: product_post.commentBoxId,
+          _id: prodPost.commentBoxId,
           "comments._id": ObjectID(req.body.commentWork._id),
           "comments.replys._id": ObjectID(req.body.commentWork.replyWork._id)
         },
@@ -225,7 +225,7 @@ router.put("/:_id", auth, async (req, res) => {
     } else {
       await CommentBox.findOneAndUpdate(
         {
-          _id: product_post.commentBoxId,
+          _id: prodPost.commentBoxId,
           "comments._id": ObjectID(req.body.commentWork._id),
           "comments.replys._id": ObjectID(req.body.commentWork.replyWork._id)
         },
@@ -253,35 +253,55 @@ router.put("/:_id", auth, async (req, res) => {
 
 router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
-  const userId = req.user._id;
+
   if (error) {
     res.status(400).send(error.details[0].message);
     return;
   } else {
-    const { caption, category, tags } = req.body;
-    const member = await Member.findById({ _id: userId });
-    console.log(member);
-
-    let product_post = new Product({
+    const prodPost = new Product({
       owner: req.user,
-      caption,
-      tags,
-      category
+      caption: req.body.caption,
+      tags: req.body.tags,
+      category: req.body.category
     });
-    // console.log("id badaz mongoos", product_post.commentBoxId);
-    generateCommentBox("Product", product_post._id, product_post.commentBoxId);
-    generateLikers("Product", product_post._id, product_post.likedBy);
-    await Member.updateOne(
-      { _id: member._id },
-      {
-        $push: { product_posts: product_post._id }
-      }
-    );
-    product_post = await product_post.save();
 
-    if (product_post) {
-      res.status(200).send(product_post);
-    } else res.send("mahsool post nasho");
+    const commentBox = new CommentBox({
+      _id: prodPost.commentBoxId,
+      downOf: prodPost._id,
+      onModel: "Product"
+    });
+
+    const likers = new Likers({
+      _id: prodPost.likers,
+      downOf: prodPost._id,
+      onModel: "Product",
+      likedBy: []
+    });
+    try {
+      new Fawn.Task()
+
+        .save("Product", prodPost)
+
+        .save("commentboxes", commentBox)
+
+        .save("likers", likers)
+
+        .update(
+          "members",
+          { _id: req.user._id },
+          {
+            $push: { prodPosts: prodPost._id },
+            $inc: { prodPostNumber: 1 }
+          }
+        )
+        .options({ upsert: true })
+        .run({ useMongoose: true });
+
+      res.status(200).send("DONE");
+    } catch (err) {
+      console.log("errrrrrrrrrrrrr", err, "eeeeeeeeeee");
+      res.status(500).send("SOMTHING IN SERVER WENT WRONG!!!!!!!!!");
+    }
   }
 });
 

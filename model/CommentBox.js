@@ -18,17 +18,6 @@ const commentBoxSchema = new mongoose.Schema({
   canComment: { type: Boolean, default: true }
 });
 
-async function generateCommentBox(onModel, owner_id, owner_commentId) {
-  const commentBox = new CommentBox({
-    _id: owner_commentId,
-    downOf: owner_id,
-    onModel
-  });
-  const result = await commentBox.save();
-  return result;
-}
-
 const CommentBox = mongoose.model("CommentBox", commentBoxSchema);
 
-exports.generateCommentBox = generateCommentBox;
 exports.CommentBox = CommentBox;

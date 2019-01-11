@@ -1,12 +1,13 @@
 const mongoose = require("mongoose");
+const {
+  polygonSchema,
+  pointSchema,
+  lineStringSchema
+} = require("./pointSchema");
 const Joi = require("joi");
-const Fawn = require("fawn");
 
-const pointSchema = require("../model/pointSchema");
-const { CommentBox } = require("../model/CommentBox");
-
-const Product = mongoose.model(
-  "Product",
+const Adventure = mongoose.model(
+  "Adventure",
   new mongoose.Schema({
     owner: { type: Object, required: true },
     commentBoxId: {
@@ -15,20 +16,22 @@ const Product = mongoose.model(
       auto: true,
       required: true
     },
-    likes: { type: Number, default: 0 },
-    likedBy: {
+    likers: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Likers",
       auto: true,
       required: true
     },
-
-    location: { type: pointSchema },
+    caption: { type: String, required: true },
+    cover: { type: polygonSchema },
+    likes: { type: Number, default: 0 },
+    locationCenter: { type: pointSchema },
+    geoWay: { type: lineStringSchema },
     date: { type: Date, default: Date.now },
     caption: { type: String, required: true },
     images: {
       type: Array,
-      items: String,
+      items: Object,
       default: [
         "https://picsum.photos/200/300",
         "https://picsum.photos/200/300"
@@ -38,7 +41,7 @@ const Product = mongoose.model(
     tags: { type: Array, items: String, required: true }
   })
 );
-function validateProduct(product) {
+function validateAdventure(adventure) {
   const schema = {
     caption: Joi.string()
       .min(5)
@@ -52,8 +55,9 @@ function validateProduct(product) {
       .required()
   };
 
-  return Joi.validate(product, schema);
+  return Joi.validate(adventure, schema);
 }
 
-exports.validate = validateProduct;
-exports.Product = Product;
+exports.validate = validateAdventure;
+
+exports.Adventure = Adventure;

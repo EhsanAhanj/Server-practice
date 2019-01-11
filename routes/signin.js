@@ -11,10 +11,17 @@ router.post("/", async (req, res) => {
   } else {
     let itDublicated = await isDublicted(req.body);
 
-    const { userName, name, phoneNumber, ostan, password, location } = req.body;
+    const {
+      userName,
+      bname,
+      phoneNumber,
+      ostan,
+      password,
+      location
+    } = req.body;
     if (!itDublicated) {
       let member = new Member({
-        name,
+        bname,
         userName,
         phoneNumber,
         ostan,
@@ -28,7 +35,7 @@ router.post("/", async (req, res) => {
       res
         .header("x-bouj-token", token)
         .status(200)
-        .send(_.pick(member, ["userName", "name", "_id", "location"]));
+        .send(_.pick(member, ["userName", "bname", "_id", "location"]));
     } else {
       res.status(400).send("this username or phonenumber rejistred beror.");
     }

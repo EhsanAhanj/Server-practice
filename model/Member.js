@@ -6,7 +6,7 @@ const { Product } = require("./p_model");
 const { pointSchema, ValidatePoint } = require("./pointSchema");
 
 const memberSchema = new mongoose.Schema({
-  name: { type: String, required: true, minlength: 4, maxlength: 50 },
+  bname: { type: String, required: true, minlength: 4, maxlength: 50 },
   userName: { type: String, required: true },
   phoneNumber: { type: String, required: true, minlength: 7, maxlength: 10 },
   password: { type: String, minlength: 5, maxlength: 1023 },
@@ -23,27 +23,16 @@ const memberSchema = new mongoose.Schema({
   avatarLarge: String,
   memberRole: String,
   tripsPassed: [],
-  advanctureMaded: [String],
-  product_posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+  aventureMaded: [{ type: mongoose.Schema.Types.ObjectId, ref: "Adventure" }],
+  aventureMadedNumber: Number,
+  prodPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+  prodPostNumber: Number,
   warnings: [String],
   ratingRate: Number,
   lastLogin: Date,
   linksOut: [String],
   canRateFor: [String]
 });
-memberSchema.methods.embedUserName = function() {
-  const embedUserName = {
-    _id: this._id,
-    name: this.name,
-    followerNumber: this.followerNumber,
-    followingNumber: this.followingNumber,
-    tripsPassedNumber: this.tripsPassedNumber,
-    memberRole: this.memberRole,
-    ostan: this.ostan,
-    avatarSm: this.avatarSmall
-  };
-  return embedUserName;
-};
 
 memberSchema.methods.generateAuthToken = function() {
   const token = jwt.sign(
@@ -64,18 +53,18 @@ const Member = mongoose.model("Member", memberSchema);
 
 function validateNewMember(newMember) {
   const isValidpoit = ValidatePoint(newMember.location);
-  console.log(isValidpoit);
+
   if (isValidpoit.error) return isValidpoit;
   else {
     const schema = {
       userName: Joi.string().required(),
-      name: Joi.string()
+      bname: Joi.string()
         .min(4)
         .max(50)
         .required(),
       phoneNumber: Joi.string()
         .min(7)
-        .max(10)
+        .max(13)
         .required(),
       ostan: Joi.string().required(),
       password: Joi.string()
@@ -97,7 +86,6 @@ async function isDublicted({ userName, phoneNumber }) {
     return console.log(err);
   }
 }
-//exports.embedUserName = embedUserName;
 exports.isDublicted = isDublicted;
 exports.Member = Member;
 exports.validate = validateNewMember;

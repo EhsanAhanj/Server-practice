@@ -2,16 +2,39 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 const pointSchema = new mongoose.Schema({
-  type: { type: String, default: "Point" },
-  coordinates: {
-    type: Array,
-    items: Number,
-    default: [6646, 333],
+  type: {
+    type: String,
+    enum: ["Point"],
     required: true
   },
-  _id: false
+  coordinates: {
+    type: [Number],
+    required: true
+  }
 });
 
+const polygonSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ["Polygon"],
+    required: true
+  },
+  coordinates: {
+    type: [[[Number]]], // Array of arrays of arrays of numbers
+    required: true
+  }
+});
+const lineStringSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ["LineString"],
+    required: true
+  },
+  coordinates: {
+    type: [[Number]],
+    required: true
+  }
+});
 const Point = mongoose.model("Point", pointSchema);
 
 function ValidatePoint(point) {
@@ -25,6 +48,8 @@ function ValidatePoint(point) {
   return Joi.validate(point, schema);
 }
 
+exports.lineStringSchema = lineStringSchema;
+exports.polygonSchema = polygonSchema;
 exports.Point = Point;
 exports.pointSchema = pointSchema;
 exports.ValidatePoint = ValidatePoint;

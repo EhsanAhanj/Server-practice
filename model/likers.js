@@ -17,16 +17,4 @@ const likersSchema = new mongoose.Schema({
 
 const Likers = mongoose.model("Likers", likersSchema);
 
-async function generateLikers(onModel, owner_id, owner_likedby) {
-  const likers = new Likers({
-    _id: owner_likedby,
-    downOf: owner_id,
-    onModel,
-    likedBy: []
-  });
-  const result = await likers.save();
-  return result;
-}
-
 module.exports.Likers = Likers;
-module.exports.generateLikers = generateLikers;
