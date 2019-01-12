@@ -9,8 +9,8 @@ const auth = require("../middleware/auth");
 const { Product, validate } = require("../model/p_model");
 const { Member } = require("../model/Member");
 const { Comment } = require("../model/commentSchema");
-const { CommentBox, generateCommentBox } = require("../model/CommentBox");
-const { generateLikers, Likers } = require("../model/likers");
+const { CommentBox } = require("../model/CommentBox");
+const { Likers } = require("../model/likers");
 const { Reply } = require("../model/replySchema");
 
 const Joi = require("joi");
@@ -294,7 +294,7 @@ router.post("/", auth, async (req, res) => {
             $inc: { prodPostNumber: 1 }
           }
         )
-        .options({ upsert: true })
+        // .options({)
         .run({ useMongoose: true });
 
       res.status(200).send("DONE");

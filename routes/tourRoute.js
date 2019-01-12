@@ -1,3 +1,4 @@
+// t with any filter
 const express = require("express");
 const router = express.Router();
 const Fawn = require("fawn");
@@ -9,25 +10,25 @@ const { CommentBox } = require("../model/CommentBox");
 const { Likers } = require("../model/likers");
 
 const { Member } = require("../model/Member");
-const { Adventure, validate } = require("../model/adv_model");
+const { Tour, validate } = require("../model/tour-model");
 
 //----------------------GET ALL PRODUCT POSTS -------------------------
 router.get("/", async (req, res) => {
   // add filters with validate them
-  const adventures = await Adventure.find().sort({ _id: -1 });
-  res.status(200).send(adventures);
+  const tours = await Tour.find().sort({ _id: -1 });
+  res.status(200).send(tours);
 });
 
 //--------------------GET SPECIAL ADV BY ID----------------------------
 router.get("/:_id", async (req, res) => {
   if (!ObjectID.isValid(req.params._id))
     return res.status(400).send(`id moshkel dare `);
-  const adventure = await Adventure.findById({ _id: req.params._id });
-  if (!adventure) return res.status(404).send(`ba in id post nadarim`);
-  return res.status(200).send(`innnnnno mikhay ${adventure}`);
+  const tour = await Tour.findById({ _id: req.params._id });
+  if (!tour) return res.status(404).send(`ba in id tour nadarim`);
+  return res.status(200).send(`innnnnno mikhay ${tour}`);
 });
 
-//------------------ CREAATE ADVENTURE POST -----------------------------------------
+//------------------ CREAATE tour POST -----------------------------------------
 
 router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
@@ -36,7 +37,7 @@ router.post("/", auth, async (req, res) => {
     res.status(400).send(error.details[0].message);
     return;
   } else {
-    const adventure = new Adventure({
+    const tour = new Tour({
       owner: req.user,
       caption: req.body.caption,
       tags: req.body.tags,
@@ -44,21 +45,21 @@ router.post("/", auth, async (req, res) => {
     });
 
     const commentBox = new CommentBox({
-      _id: adventure.commentBoxId,
-      downOf: adventure._id,
-      onModel: "Adventure"
+      _id: tour.commentBoxId,
+      downOf: tour._id,
+      onModel: "Tour"
     });
 
     const likers = new Likers({
-      _id: adventure.likers,
-      downOf: adventure._id,
-      onModel: "Adventure",
+      _id: tour.likers,
+      downOf: tour._id,
+      onModel: "Tour",
       likedBy: []
     });
 
     const task = new Fawn.Task();
 
-    task.save("adventures", adventure);
+    task.save("tours", tour);
 
     task.save("commentboxes", commentBox);
 
@@ -68,8 +69,8 @@ router.post("/", auth, async (req, res) => {
       "members",
       { _id: req.user._id },
       {
-        $push: { aventureMaded: adventure._id },
-        $inc: { aventureMadedNumber: 1 }
+        $push: { tourMaded: tour._id },
+        $inc: { tourMadedNumber: 1 }
       }
     );
 

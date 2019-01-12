@@ -25,6 +25,8 @@ const memberSchema = new mongoose.Schema({
   tripsPassed: [],
   aventureMaded: [{ type: mongoose.Schema.Types.ObjectId, ref: "Adventure" }],
   aventureMadedNumber: Number,
+  tourMaded: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tour" }],
+  tourMadedNumber: Number,
   prodPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   prodPostNumber: Number,
   warnings: [String],
