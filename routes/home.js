@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Member } = require("../model/Member");
-const { Producte, createNewPoroduct } = require("../model/p_model");
+const { Producte, createNewPoroduct } = require("../model/prod-model");
 
 // if a user rediret to timlene
 

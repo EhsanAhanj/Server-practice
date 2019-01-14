@@ -24,7 +24,11 @@ router.get("/:_id", async (req, res) => {
     return res.status(400).send(`id moshkel dare `);
   const adventure = await Adventure.findById({ _id: req.params._id });
   if (!adventure) return res.status(404).send(`ba in id post nadarim`);
-  return res.status(200).send(`innnnnno mikhay ${adventure}`);
+  //------ append commentBox------
+  const commentBox = await CommentBox.findById({ _id: adventure.commentBoxId });
+  if (!commentBox) return res.status(404).send("commment box peyda nashod");
+
+  return res.status(200).send(`innnnnno mikhay ${(adventure, commentBox)}  `);
 });
 
 //------------------ CREAATE ADVENTURE POST -----------------------------------------
@@ -49,20 +53,11 @@ router.post("/", auth, async (req, res) => {
       onModel: "Adventure"
     });
 
-    const likers = new Likers({
-      _id: adventure.likers,
-      downOf: adventure._id,
-      onModel: "Adventure",
-      likedBy: []
-    });
-
     const task = new Fawn.Task();
 
     task.save("adventures", adventure);
 
     task.save("commentboxes", commentBox);
-
-    task.save("likers", likers);
 
     task.update(
       "members",
@@ -75,11 +70,10 @@ router.post("/", auth, async (req, res) => {
 
     task.options({ new: true });
     try {
-      task.run({ useMongoose: true }).catch(console.log("ZAAART"));
+      task.run({ useMongoose: true });
 
       res.status(200).send("DONE");
     } catch (err) {
-      console.log("errrrrrrrrrrrrr", err, "eeeeeeeeeee");
       res.status(500).send("SOMTHING IN SERVER WENT WRONG!!!!!!!!!");
     }
   }

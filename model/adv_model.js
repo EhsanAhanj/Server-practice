@@ -17,10 +17,8 @@ const Adventure = mongoose.model(
       required: true
     },
     likers: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Likers",
-      auto: true,
-      required: true
+      type: Array,
+      items: Object
     },
     caption: { type: String, required: true },
     cover: { type: polygonSchema },

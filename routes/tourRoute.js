@@ -7,7 +7,6 @@ const mongoose = require("mongoose");
 
 const auth = require("../middleware/auth");
 const { CommentBox } = require("../model/CommentBox");
-const { Likers } = require("../model/likers");
 
 const { Member } = require("../model/Member");
 const { Tour, validate } = require("../model/tour-model");
@@ -25,7 +24,12 @@ router.get("/:_id", async (req, res) => {
     return res.status(400).send(`id moshkel dare `);
   const tour = await Tour.findById({ _id: req.params._id });
   if (!tour) return res.status(404).send(`ba in id tour nadarim`);
-  return res.status(200).send(`innnnnno mikhay ${tour}`);
+
+  //------ append commentBox------
+  const commentBox = await CommentBox.findById({ _id: tour.commentBoxId });
+  if (!commentBox) return res.status(404).send("commment box peyda nashod");
+
+  return res.status(200).send(`innnnnno mikhay ${(tour, commentBox)}`);
 });
 
 //------------------ CREAATE tour POST -----------------------------------------
@@ -50,20 +54,11 @@ router.post("/", auth, async (req, res) => {
       onModel: "Tour"
     });
 
-    const likers = new Likers({
-      _id: tour.likers,
-      downOf: tour._id,
-      onModel: "Tour",
-      likedBy: []
-    });
-
     const task = new Fawn.Task();
 
     task.save("tours", tour);
 
     task.save("commentboxes", commentBox);
-
-    task.save("likers", likers);
 
     task.update(
       "members",
@@ -76,11 +71,10 @@ router.post("/", auth, async (req, res) => {
 
     task.options({ new: true });
     try {
-      task.run({ useMongoose: true }).catch(console.log("ZAAART"));
+      task.run({ useMongoose: true });
 
       res.status(200).send("DONE");
     } catch (err) {
-      console.log("errrrrrrrrrrrrr", err, "eeeeeeeeeee");
       res.status(500).send("SOMTHING IN SERVER WENT WRONG!!!!!!!!!");
     }
   }

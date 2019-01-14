@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-const { Product } = require("./p_model");
+const { Product } = require("./prod-model");
 const { pointSchema, ValidatePoint } = require("./pointSchema");
 
 const memberSchema = new mongoose.Schema({

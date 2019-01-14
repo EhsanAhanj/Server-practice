@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
-const pointSchema = require("../model/pointSchema");
-const { CommentBox } = require("../model/CommentBox");
+const pointSchema = require("./pointSchema");
+const { CommentBox } = require("./CommentBox");
 
 const Product = mongoose.model(
   "Product",
@@ -16,10 +16,8 @@ const Product = mongoose.model(
     },
     likes: { type: Number, default: 0 },
     likedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Likers",
-      auto: true,
-      required: true
+      type: Array,
+      items: Object
     },
 
     location: { type: pointSchema },
